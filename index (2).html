@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A visual campaign exploring NYC shooting incidents and victims through public data.">
+<title>NYC, In Focus — Understanding Gun Violence</title>
+<style>
+:root {
+  --ink:#171717; --muted:#666; --paper:#f7f6f3; --white:#fff;
+  --line:#dedbd5; --accent:#a94f4a; --accent-soft:#f1e2df;
+  --bluegray:#71889a; --sand:#c58a75; --max:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+a{color:inherit}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:20}
+nav{position:sticky;top:0;z-index:10;background:rgba(247,246,243,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:var(--max);margin:auto;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.brand{font-weight:800;letter-spacing:.12em;font-size:.78rem;text-transform:uppercase}
+.nav-links{display:flex;gap:18px;font-size:.8rem}
+.nav-links a{text-decoration:none;color:var(--muted)}
+section{padding:100px 24px;scroll-margin-top:70px}
+.inner{max-width:var(--max);margin:auto}
+.kicker{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:clamp(3.4rem,9vw,7.8rem);line-height:.92;letter-spacing:-.075em;max-width:950px;margin:26px 0}
+h2{font-size:clamp(2.2rem,5vw,4.6rem);line-height:1;letter-spacing:-.055em;max-width:850px;margin:18px 0 24px}
+h3{font-size:1.15rem;letter-spacing:-.02em}
+.lede{font-size:clamp(1.05rem,2vw,1.35rem);max-width:650px;color:#4e4c49}
+.hero{min-height:86vh;display:flex;align-items:center;background:var(--paper);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:44vw;height:44vw;min-width:330px;min-height:330px;border:1px solid #d7c9c3;border-radius:50%;right:-13vw;bottom:-22vw;box-shadow:0 0 0 38px rgba(169,79,74,.035),0 0 0 80px rgba(169,79,74,.025)}
+.hero .inner{position:relative;z-index:1}
+.hero-mark{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);padding:8px 12px;border-radius:99px;font-size:.75rem;color:var(--muted)}
+.dot{width:8px;height:8px;background:var(--accent);border-radius:50%}
+.hero-bottom{display:flex;align-items:center;gap:14px;margin-top:46px;color:var(--muted);font-size:.85rem}
+.arrow{font-size:1.2rem;color:var(--accent)}
+.dark{background:#1b1b1b;color:#f8f6f2}
+.dark .lede,.dark .muted{color:#c4c0bb}
+.dark .kicker{color:#d99b8e}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+.note{border-left:2px solid var(--accent);padding:8px 0 8px 18px;color:var(--muted);font-size:.92rem}
+.interview-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:42px}
+.interview-strip div{padding:20px;border:1px solid #454545;border-radius:14px}
+.interview-strip strong{display:block;font-size:1.02rem;margin-bottom:6px}
+.interview-strip span{color:#c4c0bb;font-size:.84rem}
+.evidence{background:#fff}
+.chart-card{background:#fbfaf8;border:1px solid var(--line);border-radius:22px;padding:clamp(18px,3vw,34px);margin-top:35px}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.period{font-size:.76rem;color:var(--muted);letter-spacing:.04em}
+.chart{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:30px;margin:30px 0 12px}
+.bar-group{display:flex;flex-direction:column;gap:10px}
+.bar-label{display:flex;justify-content:space-between;gap:12px;font-size:.88rem}
+.bar-track{height:16px;background:#e9e6e1;border-radius:20px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px;transition:width .6s ease}
+.fill-25{background:var(--bluegray)} .fill-26{background:var(--accent)}
+.big-number{font-size:clamp(2.8rem,6vw,5rem);font-weight:800;letter-spacing:-.07em;line-height:1}
+.change{display:inline-block;background:var(--accent-soft);color:#773a35;padding:7px 11px;border-radius:99px;font-size:.8rem;font-weight:700;margin-top:12px}
+.chart-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-top:22px}
+.key{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+button{border:1px solid var(--line);background:#fff;padding:10px 15px;border-radius:99px;cursor:pointer;font:inherit;font-size:.82rem}
+button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+.insight{padding:24px;border-radius:18px;background:#f3f1ed}
+.insight .num{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;letter-spacing:-.06em}
+.insight p{color:var(--muted);margin-bottom:0}
+.caution{font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:24px}
+.turn-quote{font-size:clamp(1.6rem,3.5vw,3rem);line-height:1.15;letter-spacing:-.04em;max-width:850px}
+.turn-quote em{font-style:normal;color:#d99b8e}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.step{border-top:1px solid #555;padding-top:16px}
+.step b{font-size:.72rem;color:#d99b8e;letter-spacing:.12em}
+.step p{color:#c4c0bb;font-size:.9rem;margin:8px 0 0}
+.ask{background:var(--accent-soft)}
+.ask-box{display:flex;justify-content:space-between;gap:30px;align-items:end;flex-wrap:wrap}
+.cta{display:inline-block;background:var(--ink);color:white;text-decoration:none;padding:14px 20px;border-radius:99px;font-size:.86rem;font-weight:700}
+.source-list{font-size:.8rem;color:var(--muted);line-height:1.7;margin-top:40px}
+.source-list a{text-decoration-thickness:1px;text-underline-offset:3px}
+footer{padding:26px 24px;background:#1b1b1b;color:#c4c0bb;font-size:.75rem}
+footer .inner{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+@media(max-width:720px){
+ .nav-links{display:none} section{padding:76px 20px} .split,.chart,.insight-grid{grid-template-columns:1fr;gap:24px}
+ .interview-strip,.steps{grid-template-columns:1fr} .hero{min-height:78vh} .chart-card{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav><div class="nav-inner"><div class="brand">NYC, In Focus</div><div class="nav-links"><a href="#context">Context</a><a href="#evidence">Evidence</a><a href="#turn">The turn</a><a href="#ask">Explore</a></div></div></nav>
+
+<section class="hero" id="hook">
+ <div class="inner">
+  <div class="hero-mark"><span class="dot"></span> A public-data campaign · New York City</div>
+  <p class="kicker" style="margin-top:34px">Gun violence, seen more clearly</p>
+  <h1>What do the numbers say about <span style="color:var(--accent)">our city?</span></h1>
+  <p class="lede">Gun violence is often discussed through headlines. Looking at the data can help us ask better questions about what is happening, where, and when.</p>
+  <div class="hero-bottom"><span class="arrow">↓</span><span>Scroll to explore the evidence</span></div>
+ </div>
+</section>
+
+<section class="dark" id="context">
+ <div class="inner">
+  <p class="kicker">01 / Context</p>
+  <div class="split">
+   <div><h2>One city. Many everyday experiences.</h2></div>
+   <div>
+    <p class="lede">Gun violence is not only a statistic. It can shape how people think about their neighbourhoods, daily routes, work, school and public spaces.</p>
+    <p class="muted">This project asks how location-specific shooting data can help New Yorkers compare what they assume about safety with what public records actually show.</p>
+    <div class="interview-strip">
+     <div><strong>NYC student</strong><span>Everyday routines and mobility</span></div>
+     <div><strong>NYC resident</strong><span>Neighbourhood experience</span></div>
+     <div><strong>Retail business leader</strong><span>Local business perspective</span></div>
+    </div>
+    <p class="muted" style="font-size:.76rem;margin-top:16px">These are the perspectives included in Phase 1 interviews; no quotations or representative claims are implied.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="evidence" id="evidence">
+ <div class="inner">
+  <p class="kicker">02 / Evidence I</p>
+  <h2>Fewer shooting incidents were recorded in the first ten months of 2026.</h2>
+  <p class="lede">A year-to-date comparison shows 536 shooting incidents from January to October 2026, compared with 598 in the same period of 2025.</p>
+  <div class="chart-card">
+   <div class="chart-head"><div><h3>NYC shooting incidents</h3><div class="period">January–October · 2025 compared with 2026</div></div><span class="change">↓ 10.4% year over year</span></div>
+   <div class="chart" role="img" aria-label="Shooting incidents: 598 in January to October 2025 and 536 in January to October 2026.">
+    <div class="bar-group"><div class="bar-label"><strong>2025</strong><strong>598</strong></div><div class="bar-track"><div class="bar-fill fill-25" style="width:100%"></div></div></div>
+    <div class="bar-group"><div class="bar-label"><strong>2026</strong><strong>536</strong></div><div class="bar-track"><div class="bar-fill fill-26" style="width:89.6%"></div></div></div>
+   </div>
+   <div class="chart-legend"><span><i class="key" style="background:var(--bluegray)"></i>2025</span><span><i class="key" style="background:var(--accent)"></i>2026</span></div>
+   <p class="caution">Source: NYPD, November 9, 2026. First ten months of each year. NYPD describes these as record-low year-to-date figures; preliminary statistics may be revised.</p>
+  </div>
+ </div>
+</section>
+
+<section id="evidence-two">
+ <div class="inner">
+  <p class="kicker">03 / Evidence II</p>
+  <h2>Victim counts also declined. But incidents and people are not the same measure.</h2>
+  <p class="lede">The number of shooting victims fell from 746 to 649 across the same January–October periods.</p>
+  <div class="insight-grid">
+   <div class="insight"><div class="period">SHOOTING VICTIMS · 2025</div><div class="num">746</div><p>People recorded as shooting victims, January–October 2025.</p></div>
+   <div class="insight"><div class="period">SHOOTING VICTIMS · 2026</div><div class="num">649</div><p>People recorded as shooting victims, January–October 2026.</p><span class="change">↓ 13.0% year over year</span></div>
+  </div>
+  <div class="chart-card" style="margin-top:18px">
+   <h3>Compare the two measures</h3>
+   <div class="controls" role="group" aria-label="Choose a measure">
+    <button class="measure" data-measure="incidents" aria-pressed="true">Shooting incidents</button>
+    <button class="measure" data-measure="victims" aria-pressed="false">Shooting victims</button>
+   </div>
+   <div id="measure-result" aria-live="polite"><strong>Incidents:</strong> 598 in 2025 and 536 in 2026. An incident is an event, not a count of people.</div>
+  </div>
+  <p class="caution">Source: NYPD, November 9, 2026. Victim totals count people; incident totals count events. The measures should not be added together.</p>
+ </div>
+</section>
+
+<section class="dark" id="turn">
+ <div class="inner">
+  <p class="kicker">04 / The turn</p>
+  <p class="turn-quote">A citywide decline is important. <em>It does not tell the whole neighbourhood story.</em></p>
+  <div class="split" style="margin-top:40px">
+   <div><p class="lede">These figures describe New York City as a whole. They cannot tell us, by themselves, how risk differs block by block, what causes an incident, or how every resident experiences safety.</p></div>
+   <div><p class="muted">The next question is more local: how do patterns change by borough, precinct, location and time? That is why the campaign points readers toward the underlying public datasets rather than treating one headline as the whole story.</p></div>
+  </div>
+  <div class="steps">
+   <div class="step"><b>01 / LOOK CLOSER</b><p>Move from a citywide total to the location and time fields in the public data.</p></div>
+   <div class="step"><b>02 / ASK QUESTIONS</b><p>Compare patterns carefully and consider what the dataset does not measure.</p></div>
+   <div class="step"><b>03 / KEEP CONTEXT</b><p>Use official records as evidence, not as a complete explanation of community safety.</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="ask" id="ask">
+ <div class="inner">
+  <p class="kicker">05 / The ask</p>
+  <div class="ask-box">
+   <div><h2>Look beyond the headline.</h2><p class="lede">Explore the records. Question the patterns. Understand the limits. A clearer picture begins with better questions.</p></div>
+   <a class="cta" href="https://data.cityofnewyork.us/Public-Safety/Shootings-2006-Present-/5ucz-vwe8" target="_blank" rel="noopener">Explore NYPD shooting data ↗</a>
+  </div>
+  <div class="source-list">
+   <strong>Sources & data notes</strong><br>
+   1. <a href="https://www.nyc.gov/site/nypd/news/PR017/nypd-fewest-shooting-incidents-shooting-victims-murders-recorded-history-the" target="_blank" rel="noopener">NYPD announcement, November 9, 2026</a> — January–October comparison.<br>
+   2. <a href="https://data.cityofnewyork.us/Public-Safety/Shootings-2006-Present-/5ucz-vwe8" target="_blank" rel="noopener">NYC Open Data: Shootings (2006–Present)</a> — incident-level public dataset.<br>
+   3. <a href="https://data.cityofnewyork.us/Public-Safety/Shooting-Victims-2006-Present-/pztn-9bne" target="_blank" rel="noopener">NYC Open Data: Shooting Victims (2006–Present)</a> — victim-level public dataset.<br>
+   <br>Percent changes are calculated from the displayed NYPD totals and rounded to one decimal place. This campaign uses NYPD-reported data; it does not independently verify individual records.
+  </div>
+ </div>
+</section>
+<footer><div class="inner"><span>NYC, IN FOCUS · CAMPAIGN VERSION 1</span><span>Public data. Clearer questions.</span></div></footer>
+<script>
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', () => {
+ const max = document.documentElement.scrollHeight - window.innerHeight;
+ progress.style.width = (max > 0 ? window.scrollY / max * 100 : 0) + '%';
+});
+const descriptions = {
+ incidents: '<strong>Incidents:</strong> 598 in 2025 and 536 in 2026. An incident is an event, not a count of people.',
+ victims: '<strong>Victims:</strong> 746 in 2025 and 649 in 2026. Victim totals count people affected, not the number of events.'
+};
+document.querySelectorAll('.measure').forEach(button => {
+ button.addEventListener('click', () => {
+  document.querySelectorAll('.measure').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  button.setAttribute('aria-pressed', 'true');
+  document.getElementById('measure-result').innerHTML = descriptions[button.dataset.measure];
+ });
+});
+</script>
+</body>
+</html>
